@@ -27,7 +27,7 @@
  */
 
 /**
- * @file   scpi_utils.c
+ * @file   utils.c
  * @date   Thu Nov 15 10:58:45 UTC 2012
  *
  * @brief  Conversion routines and string manipulation routines
@@ -55,13 +55,12 @@ static size_t cmdSeparatorPos(const char * cmd, size_t len);
  * @param set
  * @return
  */
-char * strnpbrk(const char *str, size_t size, const char *set) {
-    const char *scanp;
+char * strnpbrk(const char *str, const size_t size, const char *set) {
     long c, sc;
     const char * strend = str + size;
 
     while ((strend != str) && ((c = *str++) != 0)) {
-        for (scanp = set; (sc = *scanp++) != '\0';)
+        for (const char *scanp = set; (sc = *scanp++) != '\0';)
             if (sc == c)
                 return ((char *) (str - 1));
     }
@@ -69,7 +68,7 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
 }
 
 /**
- * Converts signed/unsigned 32 bit integer value to string in specific base
+ * Converts signed/unsigned 32-bit integer value to string in specific base
  * @param val   integer value
  * @param str   converted textual representation
  * @param len   string buffer length
@@ -77,18 +76,17 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
  * @param sign
  * @return number of bytes written to str (without '\0')
  */
-size_t UInt32ToStrBaseSign(uint32_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
+size_t UInt32ToStrBaseSign(const uint32_t val, char * str, const size_t len, int8_t base, const scpi_bool_t sign) {
     const char digits[] = "0123456789ABCDEF";
 
 #define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
-    uint32_t x = 0;
-    int_fast8_t digit;
     size_t pos = 0;
     uint32_t uval = val;
 
     if (uval == 0) {
         ADD_CHAR('0');
     } else {
+        uint32_t x = 0;
 
         switch (base) {
             case 2:
@@ -119,7 +117,7 @@ size_t UInt32ToStrBaseSign(uint32_t val, char * str, size_t len, int8_t base, sc
         }
 
         do {
-            digit = (uint8_t) (uval / x);
+            int_fast8_t digit = (uint8_t) (uval / x);
             ADD_CHAR(digits[digit]);
             uval -= digit * x;
             x /= base;
@@ -138,24 +136,24 @@ size_t UInt32ToStrBaseSign(uint32_t val, char * str, size_t len, int8_t base, sc
  * @param len   string buffer length
  * @return number of bytes written to str (without '\0')
  */
-size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len) {
+size_t SCPI_Int32ToStr(const int32_t val, char * str, const size_t len) {
     return UInt32ToStrBaseSign((uint32_t) val, str, len, 10, TRUE);
 }
 
 /**
- * Converts unsigned 32 bit integer value to string in specific base
+ * Converts unsigned 32-bit integer value to string in specific base
  * @param val   integer value
  * @param str   converted textual representation
  * @param len   string buffer length
  * @param base  output base
  * @return number of bytes written to str (without '\0')
  */
-size_t SCPI_UInt32ToStrBase(uint32_t val, char * str, size_t len, int8_t base) {
+size_t SCPI_UInt32ToStrBase(const uint32_t val, char * str, const size_t len, const int8_t base) {
     return UInt32ToStrBaseSign(val, str, len, base, FALSE);
 }
 
 /**
- * Converts signed/unsigned 64 bit integer value to string in specific base
+ * Converts signed/unsigned 64-bit integer value to string in specific base
  * @param val   integer value
  * @param str   converted textual representation
  * @param len   string buffer length
@@ -163,23 +161,20 @@ size_t SCPI_UInt32ToStrBase(uint32_t val, char * str, size_t len, int8_t base) {
  * @param sign
  * @return number of bytes written to str (without '\0')
  */
-size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
+size_t UInt64ToStrBaseSign(const uint64_t val, char * str, const size_t len, int8_t base, const scpi_bool_t sign) {
     const char digits[] = "0123456789ABCDEF";
 
 #define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
-    uint64_t x = 0;
-    int_fast8_t digit;
     size_t pos = 0;
     uint64_t uval = val;
 
     if (uval == 0) {
         ADD_CHAR('0');
     } else {
+        uint64_t x = 0;
 
         switch (base) {
             case 2:
-                x = 0x8000000000000000ULL;
-                break;
             case 8:
                 x = 0x8000000000000000ULL;
                 break;
@@ -205,7 +200,7 @@ size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, sc
         }
 
         do {
-            digit = (uint8_t) (uval / x);
+            int_fast8_t digit = (uint8_t) (uval / x);
             ADD_CHAR(digits[digit]);
             uval -= digit * x;
             x /= base;
@@ -224,19 +219,19 @@ size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, sc
  * @param len   string buffer length
  * @return number of bytes written to str (without '\0')
  */
-size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len) {
+size_t SCPI_Int64ToStr(const int64_t val, char * str, const size_t len) {
     return UInt64ToStrBaseSign((uint64_t) val, str, len, 10, TRUE);
 }
 
 /**
- * Converts signed/unsigned 64 bit integer value to string in specific base
+ * Converts signed/unsigned 64-bit integer value to string in specific base
  * @param val   integer value
  * @param str   converted textual representation
  * @param len   string buffer length
  * @param base  output base
  * @return number of bytes written to str (without '\0')
  */
-size_t SCPI_UInt64ToStrBase(uint64_t val, char * str, size_t len, int8_t base) {
+size_t SCPI_UInt64ToStrBase(const uint64_t val, char * str, const size_t len, const int8_t base) {
     return UInt64ToStrBaseSign(val, str, len, base, FALSE);
 }
 
@@ -247,7 +242,7 @@ size_t SCPI_UInt64ToStrBase(uint64_t val, char * str, size_t len, int8_t base) {
  * @param len   string buffer length
  * @return number of bytes written to str (without '\0')
  */
-size_t SCPI_FloatToStr(float val, char * str, size_t len) {
+size_t SCPI_FloatToStr(const float val, char * str, const size_t len) {
     SCPIDEFINE_floatToStr(val, str, len);
     return strlen(str);
 }
@@ -259,7 +254,7 @@ size_t SCPI_FloatToStr(float val, char * str, size_t len) {
  * @param len   string buffer length
  * @return number of bytes written to str (without '\0')
  */
-size_t SCPI_DoubleToStr(double val, char * str, size_t len) {
+size_t SCPI_DoubleToStr(const double val, char * str, const size_t len) {
     SCPIDEFINE_doubleToStr(val, str, len);
     return strlen(str);
 }
@@ -268,9 +263,10 @@ size_t SCPI_DoubleToStr(double val, char * str, size_t len) {
  * Converts string to signed 32bit integer representation
  * @param str   string value
  * @param val   32bit integer result
+ * @param base
  * @return      number of bytes used in string
  */
-size_t strBaseToInt32(const char * str, int32_t * val, int8_t base) {
+size_t strBaseToInt32(const char * str, int32_t * val, const int8_t base) {
     char * endptr;
     *val = strtol(str, &endptr, base);
     return endptr - str;
@@ -280,9 +276,10 @@ size_t strBaseToInt32(const char * str, int32_t * val, int8_t base) {
  * Converts string to unsigned 32bit integer representation
  * @param str   string value
  * @param val   32bit integer result
+ * @param base
  * @return      number of bytes used in string
  */
-size_t strBaseToUInt32(const char * str, uint32_t * val, int8_t base) {
+size_t strBaseToUInt32(const char * str, uint32_t * val, const int8_t base) {
     char * endptr;
     *val = strtoul(str, &endptr, base);
     return endptr - str;
@@ -292,9 +289,10 @@ size_t strBaseToUInt32(const char * str, uint32_t * val, int8_t base) {
  * Converts string to signed 64bit integer representation
  * @param str   string value
  * @param val   64bit integer result
+ * @param base
  * @return      number of bytes used in string
  */
-size_t strBaseToInt64(const char * str, int64_t * val, int8_t base) {
+size_t strBaseToInt64(const char * str, int64_t * val, const int8_t base) {
     char * endptr;
     *val = SCPIDEFINE_strtoll(str, &endptr, base);
     return endptr - str;
@@ -304,9 +302,10 @@ size_t strBaseToInt64(const char * str, int64_t * val, int8_t base) {
  * Converts string to unsigned 64bit integer representation
  * @param str   string value
  * @param val   64bit integer result
+ * @param base
  * @return      number of bytes used in string
  */
-size_t strBaseToUInt64(const char * str, uint64_t * val, int8_t base) {
+size_t strBaseToUInt64(const char * str, uint64_t * val, const int8_t base) {
     char * endptr;
     *val = SCPIDEFINE_strtoull(str, &endptr, base);
     return endptr - str;
@@ -344,7 +343,7 @@ size_t strToDouble(const char * str, double * val) {
  * @param len2
  * @return TRUE if len1==len2 and "len" characters of both strings are equal
  */
-scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) {
+scpi_bool_t compareStr(const char * str1, const size_t len1, const char * str2, const size_t len2) {
     if (len1 != len2) {
         return FALSE;
     }
@@ -357,22 +356,23 @@ scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t
 }
 
 /**
- * Compare two strings, one be longer but may contains only numbers in that section
+ * Compare two strings, one can be longer but may only contain numbers in that section
  * @param str1
  * @param len1
  * @param str2
  * @param len2
+ * @param num
  * @return TRUE if strings match
  */
-scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, size_t len2, int32_t * num) {
+scpi_bool_t compareStrAndNum(const char * str1, const size_t len1, const char * str2, const size_t len2, int32_t * num) {
     scpi_bool_t result = FALSE;
-    size_t i;
 
     if (len2 < len1) {
         return FALSE;
     }
 
     if (SCPIDEFINE_strncasecmp(str1, str2, len1) == 0) {
+        size_t i;
         result = TRUE;
 
         if (num) {
@@ -406,9 +406,8 @@ scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, 
  * @param len - max search length
  * @return number of white spaces
  */
-size_t skipWhitespace(const char * cmd, size_t len) {
-    size_t i;
-    for (i = 0; i < len; i++) {
+size_t skipWhitespace(const char * cmd, const size_t len) {
+    for (size_t i = 0; i < len; i++) {
         if (!isspace((unsigned char) cmd[i])) {
             return i;
         }
@@ -417,13 +416,13 @@ size_t skipWhitespace(const char * cmd, size_t len) {
 }
 
 /**
- * Pattern is composed from upper case an lower case letters. This function
+ * Pattern is composed of upper case and lower case letters. This function
  * search the first lowercase letter
  * @param pattern
  * @param len - max search length
  * @return position of separator or len
  */
-static size_t patternSeparatorShortPos(const char * pattern, size_t len) {
+static size_t patternSeparatorShortPos(const char * pattern, const size_t len) {
     size_t i;
     for (i = 0; (i < len) && pattern[i]; i++) {
         if (islower((unsigned char) pattern[i])) {
@@ -439,9 +438,9 @@ static size_t patternSeparatorShortPos(const char * pattern, size_t len) {
  * @param len - max search length
  * @return position of separator or len
  */
-static size_t patternSeparatorPos(const char * pattern, size_t len) {
+static size_t patternSeparatorPos(const char * pattern, const size_t len) {
 
-    char * separator = strnpbrk(pattern, len, "?:[]");
+    const char * separator = strnpbrk(pattern, len, "?:[]");
     if (separator == NULL) {
         return len;
     } else {
@@ -455,8 +454,8 @@ static size_t patternSeparatorPos(const char * pattern, size_t len) {
  * @param len - max search length
  * @return position of separator or len
  */
-static size_t cmdSeparatorPos(const char * cmd, size_t len) {
-    char * separator = strnpbrk(cmd, len, ":?");
+static size_t cmdSeparatorPos(const char * cmd, const size_t len) {
+    const char * separator = strnpbrk(cmd, len, ":?");
     size_t result;
     if (separator == NULL) {
         result = len;
@@ -473,13 +472,14 @@ static size_t cmdSeparatorPos(const char * cmd, size_t len) {
  * @param pattern_len
  * @param str
  * @param str_len
+ * @param num
  * @return
  */
-scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len, int32_t * num) {
+scpi_bool_t matchPattern(const char * pattern, const size_t pattern_len, const char * str, const size_t str_len, int32_t * num) {
     int pattern_sep_pos_short;
 
     if ((pattern_len > 0) && pattern[pattern_len - 1] == '#') {
-        size_t new_pattern_len = pattern_len - 1;
+        const size_t new_pattern_len = pattern_len - 1;
 
         pattern_sep_pos_short = patternSeparatorShortPos(pattern, new_pattern_len);
 
@@ -499,9 +499,12 @@ scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * 
  * @param pattern eg. [:MEASure]:VOLTage:DC?
  * @param cmd - command
  * @param len - max search length
+ * @param numbers
+ * @param numbers_len
+ * @param default_value
  * @return TRUE if pattern matches, FALSE otherwise
  */
-scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int32_t *numbers, size_t numbers_len, int32_t default_value) {
+scpi_bool_t matchCommand(const char * pattern, const char * cmd, const size_t len, int32_t *numbers, const size_t numbers_len, const int32_t default_value) {
 #define SKIP_PATTERN(n) do {pattern_ptr += (n);  pattern_len -= (n);} while(0)
 #define SKIP_CMD(n) do {cmd_ptr += (n);  cmd_len -= (n);} while(0)
 
@@ -822,7 +825,7 @@ char * scpiheap_strndup(scpi_error_info_heap_t * heap, const char *s, size_t n) 
     heap->wr += len;
     heap->count -= len;
 
-    /* ensure '\0' a the end */
+    /* ensure '\0' at the end */
     if (heap->wr > 0) {
         heap->data[heap->wr - 1] = '\0';
     } else {
@@ -934,17 +937,17 @@ void scpiheap_free(scpi_error_info_heap_t * heap, char * s, scpi_bool_t rollback
  * SUCH DAMAGE.
  */
 
-static char *scpi_ecvt(double arg, int ndigits, int *decpt, int *sign, char *buf, size_t bufsize) {
-    int r1, r2;
+static char *scpi_ecvt(double arg, int ndigits, int *decpt, int *sign, char *buf, const size_t bufsize) {
+    int r1;
     double fi, fj;
-    int w1, w2;
+    int w2;
 
     if (ndigits < 0) ndigits = 0;
     if (ndigits >= (int) (bufsize - 1)) ndigits = bufsize - 2;
 
-    r2 = 0;
+    int r2 = 0;
     *sign = 0;
-    w1 = 0;
+    int w1 = 0;
     if (arg < 0) {
         *sign = 1;
         arg = -arg;
@@ -1004,7 +1007,7 @@ static char *scpi_ecvt(double arg, int ndigits, int *decpt, int *sign, char *buf
 
 #define SCPI_DTOSTRE_BUFFER_SIZE 32
 
-char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __prec, unsigned char __flags) {
+char * SCPI_dtostre(double __val, char * __s, const size_t __ssize, const unsigned char __prec, const unsigned char __flags) {
     char buffer[SCPI_DTOSTRE_BUFFER_SIZE];
 
     int sign = SCPIDEFINE_signbit(__val);
@@ -1095,7 +1098,7 @@ char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __pr
  */
 scpi_array_format_t SCPI_GetNativeFormat(void) {
 
-    union {
+    const union {
         uint32_t i;
         char c[4];
     } bint = {0x01020304};
@@ -1108,7 +1111,7 @@ scpi_array_format_t SCPI_GetNativeFormat(void) {
  * @param val
  * @return
  */
-uint16_t SCPI_Swap16(uint16_t val) {
+uint16_t SCPI_Swap16(const uint16_t val) {
     return ((val & 0x00FF) << 8) |
             ((val & 0xFF00) >> 8);
 }
@@ -1118,7 +1121,7 @@ uint16_t SCPI_Swap16(uint16_t val) {
  * @param val
  * @return
  */
-uint32_t SCPI_Swap32(uint32_t val) {
+uint32_t SCPI_Swap32(const uint32_t val) {
     return ((val & 0x000000FFul) << 24) |
             ((val & 0x0000FF00ul) << 8) |
             ((val & 0x00FF0000ul) >> 8) |
@@ -1130,7 +1133,7 @@ uint32_t SCPI_Swap32(uint32_t val) {
  * @param val
  * @return
  */
-uint64_t SCPI_Swap64(uint64_t val) {
+uint64_t SCPI_Swap64(const uint64_t val) {
     return ((val & 0x00000000000000FFull) << 56) |
             ((val & 0x000000000000FF00ull) << 40) |
             ((val & 0x0000000000FF0000ull) << 24) |

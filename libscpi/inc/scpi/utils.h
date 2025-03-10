@@ -51,7 +51,7 @@ extern "C" {
     size_t SCPI_FloatToStr(float val, char * str, size_t len);
     size_t SCPI_DoubleToStr(double val, char * str, size_t len);
 
-    /* deprecated finction, should be removed later */
+    /* deprecated function, should be removed later */
 #define SCPI_LongToStr(val, str, len, base) SCPI_Int32ToStr((val), (str), (len), (base), TRUE)
 
 #ifdef	__cplusplus

@@ -27,7 +27,7 @@
  */
 
 /**
- * @file   scpi_parser.h
+ * @file   parser.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
  *
  * @brief  SCPI parser implementation
@@ -75,7 +75,7 @@ extern "C" {
     size_t SCPI_ResultFloat(scpi_t * context, float val);
     size_t SCPI_ResultDouble(scpi_t * context, double val);
     size_t SCPI_ResultText(scpi_t * context, const char * data);
-    size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error);
+    size_t SCPI_ResultError(scpi_t * context, const scpi_error_t * error);
     size_t SCPI_ResultArbitraryBlock(scpi_t * context, const void * data, size_t len);
     size_t SCPI_ResultArbitraryBlockHeader(scpi_t * context, size_t len);
     size_t SCPI_ResultArbitraryBlockData(scpi_t * context, const void * data, size_t len);
@@ -93,16 +93,16 @@ extern "C" {
     size_t SCPI_ResultArrayDouble(scpi_t * context, const double * array, size_t count, scpi_array_format_t format);
 
     scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_bool_t mandatory);
-    scpi_bool_t SCPI_ParamIsValid(scpi_parameter_t * parameter);
-    scpi_bool_t SCPI_ParamErrorOccurred(scpi_t * context);
-    scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixAllowed);
-    scpi_bool_t SCPI_ParamToInt32(scpi_t * context, scpi_parameter_t * parameter, int32_t * value);
-    scpi_bool_t SCPI_ParamToUInt32(scpi_t * context, scpi_parameter_t * parameter, uint32_t * value);
-    scpi_bool_t SCPI_ParamToInt64(scpi_t * context, scpi_parameter_t * parameter, int64_t * value);
-    scpi_bool_t SCPI_ParamToUInt64(scpi_t * context, scpi_parameter_t * parameter, uint64_t * value);
-    scpi_bool_t SCPI_ParamToFloat(scpi_t * context, scpi_parameter_t * parameter, float * value);
-    scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, double * value);
-    scpi_bool_t SCPI_ParamToChoice(scpi_t * context, scpi_parameter_t * parameter, const scpi_choice_def_t * options, int32_t * value);
+    scpi_bool_t SCPI_ParamIsValid(const scpi_parameter_t * parameter);
+    scpi_bool_t SCPI_ParamErrorOccurred(const scpi_t * context);
+    scpi_bool_t SCPI_ParamIsNumber(const scpi_parameter_t * parameter, scpi_bool_t suffixAllowed);
+    scpi_bool_t SCPI_ParamToInt32(scpi_t * context, const scpi_parameter_t * parameter, int32_t * value);
+    scpi_bool_t SCPI_ParamToUInt32(scpi_t * context, const scpi_parameter_t * parameter, uint32_t * value);
+    scpi_bool_t SCPI_ParamToInt64(scpi_t * context, const scpi_parameter_t * parameter, int64_t * value);
+    scpi_bool_t SCPI_ParamToUInt64(scpi_t * context, const scpi_parameter_t * parameter, uint64_t * value);
+    scpi_bool_t SCPI_ParamToFloat(scpi_t * context, const scpi_parameter_t * parameter, float * value);
+    scpi_bool_t SCPI_ParamToDouble(scpi_t * context, const scpi_parameter_t * parameter, double * value);
+    scpi_bool_t SCPI_ParamToChoice(scpi_t * context, const scpi_parameter_t * parameter, const scpi_choice_def_t * options, int32_t * value);
     scpi_bool_t SCPI_ChoiceToName(const scpi_choice_def_t * options, int32_t tag, const char ** text);
 
     scpi_bool_t SCPI_ParamInt32(scpi_t * context, int32_t * value, scpi_bool_t mandatory);
@@ -126,15 +126,15 @@ extern "C" {
     scpi_bool_t SCPI_ParamArrayFloat(scpi_t * context, float *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory);
     scpi_bool_t SCPI_ParamArrayDouble(scpi_t * context, double *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory);
 
-    scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd);
+    scpi_bool_t SCPI_IsCmd(const scpi_t * context, const char * cmd);
 #if USE_COMMAND_TAGS
-    int32_t SCPI_CmdTag(scpi_t * context);
+    int32_t SCPI_CmdTag(const scpi_t * context);
 #endif /* USE_COMMAND_TAGS */
     scpi_bool_t SCPI_Match(const char * pattern, const char * value, size_t len);
-    scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len, int32_t default_value);
+    scpi_bool_t SCPI_CommandNumbers(const scpi_t * context, int32_t * numbers, size_t len, int32_t default_value);
 
 #if USE_DEPRECATED_FUNCTIONS
-    /* deprecated finction, should be removed later */
+    /* deprecated functions, should be removed later */
 #define SCPI_ResultIntBase(context, val, base) SCPI_ResultInt32Base ((context), (val), (base), TRUE)
 #define SCPI_ResultInt(context, val) SCPI_ResultInt32 ((context), (val))
 #define SCPI_ParamToInt(context, parameter, value) SCPI_ParamToInt32((context), (parameter), (value))

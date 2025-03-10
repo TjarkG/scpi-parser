@@ -27,7 +27,7 @@
  */
 
 /**
- * @file   scpi_units.h
+ * @file   units.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
  * @brief  SCPI Units
@@ -50,7 +50,7 @@ extern "C" {
     scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special, scpi_number_t * value, scpi_bool_t mandatory);
 
     scpi_bool_t SCPI_ParamTranslateNumberVal(scpi_t * context, scpi_parameter_t * parameter);
-    size_t SCPI_NumberToStr(scpi_t * context, const scpi_choice_def_t * special, scpi_number_t * value, char * str, size_t len);
+    size_t SCPI_NumberToStr(const scpi_t * context, const scpi_choice_def_t * special, scpi_number_t * value, char * str, size_t len);
 
 #ifdef	__cplusplus
 }

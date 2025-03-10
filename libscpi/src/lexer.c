@@ -36,8 +36,6 @@
  */
 
 #include <ctype.h>
-#include <stdio.h>
-#include <string.h>
 
 #include "lexer_private.h"
 #include "scpi/error.h"
@@ -47,8 +45,8 @@
  * @param c
  * @return 
  */
-static int isws(int c) {
-    if ((c == ' ') || (c == '\t')) {
+static int is_ws(const int c) {
+    if (c == ' ' || c == '\t') {
         return 1;
     }
     return 0;
@@ -57,22 +55,22 @@ static int isws(int c) {
 /**
  * Is binary digit
  * @param c
- * @return 
+ * @return
  */
-static int isbdigit(int c) {
-    if ((c == '0') || (c == '1')) {
+static int is_b_digit(const int c) {
+    if (c == '0' || c == '1') {
         return 1;
     }
     return 0;
 }
 
 /**
- * Is hexadecimal digit
+ * Is octal digit
  * @param c
- * @return 
+ * @return
  */
-static int isqdigit(int c) {
-    if ((c == '0') || (c == '1') || (c == '2') || (c == '3') || (c == '4') || (c == '5') || (c == '6') || (c == '7')) {
+static int is_q_digit(const int c) {
+    if (c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7') {
         return 1;
     }
     return 0;
@@ -81,83 +79,82 @@ static int isqdigit(int c) {
 /**
  * Is end of string
  * @param state
- * @return 
+ * @return
  */
-static int iseos(lex_state_t * state) {
-    if ((state->buffer + state->len) <= (state->pos)) {
+static int is_eos(const lex_state_t * state) {
+    if (state->buffer + state->len <= state->pos) {
         return 1;
-    } else {
-        return 0;
     }
+    return 0;
 }
 
 /**
- * Private export of iseos
+ * Private export of is_eos
  * @param state
- * @return 
+ * @return
  */
-int scpiLex_IsEos(lex_state_t * state) {
-    return iseos(state);
+int scpiLex_IsEos(const lex_state_t * state) {
+    return is_eos(state);
 }
 
 /**
  * Test current character
  * @param state
  * @param chr
- * @return 
+ * @return
  */
-static int ischr(lex_state_t * state, char chr) {
-    return (state->pos[0] == chr);
+static int ischr(const lex_state_t * state, const char chr) {
+    return state->pos[0] == chr;
 }
 
 /**
  * Is plus or minus
  * @param c
- * @return 
+ * @return
  */
-static int isplusmn(int c) {
+static int is_plus_minus(const int c) {
     return c == '+' || c == '-';
 }
 
 /**
  * Is letter H
  * @param c
- * @return 
+ * @return
  */
-static int isH(int c) {
+static int isH(const int c) {
     return c == 'h' || c == 'H';
 }
 
 /**
  * Is letter B
  * @param c
- * @return 
+ * @return
  */
-static int isB(int c) {
+static int isB(const int c) {
     return c == 'b' || c == 'B';
 }
 
 /**
  * Is letter Q
  * @param c
- * @return 
+ * @return
  */
-static int isQ(int c) {
+static int isQ(const int c) {
     return c == 'q' || c == 'Q';
 }
 
 /**
  * Is letter E
  * @param c
- * @return 
+ * @return
  */
-static int isE(int c) {
+static int isE(const int c) {
     return c == 'e' || c == 'E';
 }
 
 #define SKIP_NONE       0
 #define SKIP_OK         1
-#define SKIP_INCOMPLETE -1
+#define SKIP_INCOMPLETE (-1)
 
 /* skip characters */
 /* 7.4.1 <PROGRAM MESSAGE UNIT SEPARATOR>*/
@@ -166,11 +163,11 @@ static int isE(int c) {
 /**
  * Skip all whitespaces
  * @param state
- * @return 
+ * @return
  */
 static int skipWs(lex_state_t * state) {
     int someSpace = 0;
-    while (!iseos(state) && isws(state->pos[0])) {
+    while (!is_eos(state) && is_ws(state->pos[0])) {
         state->pos++;
         someSpace++;
     }
@@ -187,25 +184,24 @@ static int skipWs(lex_state_t * state) {
 /**
  * Skip decimal digit
  * @param state
- * @return 
+ * @return
  */
 static int skipDigit(lex_state_t * state) {
-    if (!iseos(state) && isdigit((uint8_t)(state->pos[0]))) {
+    if (!is_eos(state) && isdigit((uint8_t)state->pos[0])) {
         state->pos++;
         return SKIP_OK;
-    } else {
-        return SKIP_NONE;
     }
+    return SKIP_NONE;
 }
 
 /**
  * Skip multiple decimal digits
  * @param state
- * @return 
+ * @return
  */
 static int skipNumbers(lex_state_t * state) {
     int someNumbers = 0;
-    while (!iseos(state) && isdigit((uint8_t)(state->pos[0]))) {
+    while (!is_eos(state) && isdigit((uint8_t)state->pos[0])) {
         state->pos++;
         someNumbers++;
     }
@@ -215,25 +211,24 @@ static int skipNumbers(lex_state_t * state) {
 /**
  * Skip plus or minus
  * @param state
- * @return 
+ * @return
  */
 static int skipPlusmn(lex_state_t * state) {
-    if (!iseos(state) && isplusmn(state->pos[0])) {
+    if (!is_eos(state) && is_plus_minus(state->pos[0])) {
         state->pos++;
         return SKIP_OK;
-    } else {
-        return SKIP_NONE;
     }
+    return SKIP_NONE;
 }
 
 /**
  * Skip any character from 'a'-'Z'
  * @param state
- * @return 
+ * @return
  */
 static int skipAlpha(lex_state_t * state) {
     int someLetters = 0;
-    while (!iseos(state) && isalpha((uint8_t)(state->pos[0]))) {
+    while (!is_eos(state) && isalpha((uint8_t)state->pos[0])) {
         state->pos++;
         someLetters++;
     }
@@ -244,57 +239,53 @@ static int skipAlpha(lex_state_t * state) {
  * Skip exact character chr or nothing
  * @param state
  * @param chr
- * @return 
+ * @return
  */
-static int skipChr(lex_state_t * state, char chr) {
-    if (!iseos(state) && ischr(state, chr)) {
+static int skipChr(lex_state_t * state, const char chr) {
+    if (!is_eos(state) && ischr(state, chr)) {
         state->pos++;
         return SKIP_OK;
-    } else {
-        return SKIP_NONE;
     }
+    return SKIP_NONE;
 }
 
 /**
  * Skip slash or dot
  * @param state
- * @return 
+ * @return
  */
 static int skipSlashDot(lex_state_t * state) {
-    if (!iseos(state) && (ischr(state, '/') | ischr(state, '.'))) {
+    if (!is_eos(state) && ischr(state, '/') | ischr(state, '.')) {
         state->pos++;
         return SKIP_OK;
-    } else {
-        return SKIP_NONE;
     }
+    return SKIP_NONE;
 }
 
 /**
  * Skip star
  * @param state
- * @return 
+ * @return
  */
 static int skipStar(lex_state_t * state) {
-    if (!iseos(state) && ischr(state, '*')) {
+    if (!is_eos(state) && ischr(state, '*')) {
         state->pos++;
         return SKIP_OK;
-    } else {
-        return SKIP_NONE;
     }
+    return SKIP_NONE;
 }
 
 /**
  * Skip colon
  * @param state
- * @return 
+ * @return
  */
 static int skipColon(lex_state_t * state) {
-    if (!iseos(state) && ischr(state, ':')) {
+    if (!is_eos(state) && ischr(state, ':')) {
         state->pos++;
         return SKIP_OK;
-    } else {
-        return SKIP_NONE;
     }
+    return SKIP_NONE;
 }
 
 /* 7.6.1.2 <COMMAND PROGRAM HEADER> */
@@ -302,22 +293,21 @@ static int skipColon(lex_state_t * state) {
 /**
  * Skip program mnemonic [a-z][a-z0-9_]*
  * @param state
- * @return 
+ * @return
  */
 static int skipProgramMnemonic(lex_state_t * state) {
     const char * startPos = state->pos;
-    if (!iseos(state) && isalpha((uint8_t)(state->pos[0]))) {
+    if (!is_eos(state) && isalpha((uint8_t)state->pos[0])) {
         state->pos++;
-        while (!iseos(state) && (isalnum((uint8_t)(state->pos[0])) || ischr(state, '_'))) {
+        while (!is_eos(state) && (isalnum((uint8_t)state->pos[0]) || ischr(state, '_'))) {
             state->pos++;
         }
     }
 
-    if (iseos(state)) {
+    if (is_eos(state)) {
         return (state->pos - startPos) * SKIP_INCOMPLETE;
-    } else {
-        return (state->pos - startPos) * SKIP_OK;
     }
+    return (state->pos - startPos) * SKIP_OK;
 }
 
 /* tokens */
@@ -326,7 +316,7 @@ static int skipProgramMnemonic(lex_state_t * state) {
  * Detect token white space
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiLex_WhiteSpace(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
@@ -349,21 +339,18 @@ int scpiLex_WhiteSpace(lex_state_t * state, scpi_token_t * token) {
 /**
  * Skip command program header \*<PROGRAM MNEMONIC>
  * @param state
- * @return 
+ * @return
  */
 static int skipCommonProgramHeader(lex_state_t * state) {
-    int res;
     if (skipStar(state)) {
-        res = skipProgramMnemonic(state);
-        if (res == SKIP_NONE && iseos(state)) {
-            return SKIP_INCOMPLETE;
-        } else if (res <= SKIP_INCOMPLETE) {
-            return SKIP_OK;
-        } else if (res >= SKIP_OK) {
-            return SKIP_OK;
-        } else {
+        const int res = skipProgramMnemonic(state);
+        if (res == SKIP_NONE && is_eos(state)) {
             return SKIP_INCOMPLETE;
         }
+        if (res <= SKIP_INCOMPLETE  || res >= SKIP_OK) {
+            return SKIP_OK;
+        }
+        return SKIP_INCOMPLETE;
     }
     return SKIP_NONE;
 }
@@ -371,44 +358,44 @@ static int skipCommonProgramHeader(lex_state_t * state) {
 /**
  * Skip compound program header :<PROGRAM MNEMONIC>:<PROGRAM MNEMONIC>...
  * @param state
- * @return 
+ * @return
  */
 static int skipCompoundProgramHeader(lex_state_t * state) {
-    int res;
-    int firstColon = skipColon(state);
+    const int firstColon = skipColon(state);
 
-    res = skipProgramMnemonic(state);
+    int res = skipProgramMnemonic(state);
     if (res >= SKIP_OK) {
         while (skipColon(state)) {
             res = skipProgramMnemonic(state);
             if (res <= SKIP_INCOMPLETE) {
                 return SKIP_OK;
-            } else if (res == SKIP_NONE) {
+            }
+            if (res == SKIP_NONE) {
                 return SKIP_INCOMPLETE;
             }
         }
         return SKIP_OK;
-    } else if (res <= SKIP_INCOMPLETE) {
-        return SKIP_OK;
-    } else if (firstColon) {
-        return SKIP_INCOMPLETE;
-    } else {
-        return SKIP_NONE;
     }
+    if (res <= SKIP_INCOMPLETE) {
+        return SKIP_OK;
+    }
+    if (firstColon) {
+        return SKIP_INCOMPLETE;
+    }
+    return SKIP_NONE;
 }
 
 /**
  * Detect token command or compound program header
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiLex_ProgramHeader(lex_state_t * state, scpi_token_t * token) {
-    int res;
     token->ptr = state->pos;
     token->type = SCPI_TOKEN_UNKNOWN;
 
-    res = skipCommonProgramHeader(state);
+    int res = skipCommonProgramHeader(state);
     if (res >= SKIP_OK) {
         if (skipChr(state, '?') >= SKIP_OK) {
             token->type = SCPI_TOKEN_COMMON_QUERY_PROGRAM_HEADER;
@@ -417,7 +404,7 @@ int scpiLex_ProgramHeader(lex_state_t * state, scpi_token_t * token) {
         }
     } else if (res <= SKIP_INCOMPLETE) {
         token->type = SCPI_TOKEN_INCOMPLETE_COMMON_PROGRAM_HEADER;
-    } else if (res == SKIP_NONE) {
+    } else {
         res = skipCompoundProgramHeader(state);
 
         if (res >= SKIP_OK) {
@@ -447,14 +434,14 @@ int scpiLex_ProgramHeader(lex_state_t * state, scpi_token_t * token) {
  * Detect token "Character program data"
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiLex_CharacterProgramData(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
 
-    if (!iseos(state) && isalpha((uint8_t)(state->pos[0]))) {
+    if (!is_eos(state) && isalpha((uint8_t)state->pos[0])) {
         state->pos++;
-        while (!iseos(state) && (isalnum((uint8_t)(state->pos[0])) || ischr(state, '_'))) {
+        while (!is_eos(state) && (isalnum((uint8_t)state->pos[0]) || ischr(state, '_'))) {
             state->pos++;
         }
     }
@@ -470,7 +457,7 @@ int scpiLex_CharacterProgramData(lex_state_t * state, scpi_token_t * token) {
 }
 
 /* 7.7.2 <DECIMAL NUMERIC PROGRAM DATA> */
-static int skipMantisa(lex_state_t * state) {
+static int skipMantissa(lex_state_t * state) {
     int someNumbers = 0;
 
     skipPlusmn(state);
@@ -487,7 +474,7 @@ static int skipMantisa(lex_state_t * state) {
 static int skipExponent(lex_state_t * state) {
     int someNumbers = 0;
 
-    if (!iseos(state) && isE(state->pos[0])) {
+    if (!is_eos(state) && isE(state->pos[0])) {
         state->pos++;
 
         skipWs(state);
@@ -504,14 +491,13 @@ static int skipExponent(lex_state_t * state) {
  * Detect token Decimal number
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiLex_DecimalNumericProgramData(lex_state_t * state, scpi_token_t * token) {
-    char * rollback;
     token->ptr = state->pos;
 
-    if (skipMantisa(state)) {
-        rollback = state->pos;
+    if (skipMantissa(state)) {
+        char *rollback = state->pos;
         skipWs(state);
         if (!skipExponent(state)) {
             state->pos = rollback;
@@ -549,7 +535,7 @@ int scpiLex_SuffixProgramData(lex_state_t * state, scpi_token_t * token) {
     }
 
     token->len = state->pos - token->ptr;
-    if ((token->len > 0)) {
+    if (token->len > 0) {
         token->type = SCPI_TOKEN_SUFFIX_PROGRAM_DATA;
     } else {
         token->type = SCPI_TOKEN_UNKNOWN;
@@ -563,7 +549,7 @@ int scpiLex_SuffixProgramData(lex_state_t * state, scpi_token_t * token) {
 /* 7.7.4 <NONDECIMAL NUMERIC PROGRAM DATA> */
 static int skipHexNum(lex_state_t * state) {
     int someNumbers = 0;
-    while (!iseos(state) && isxdigit((uint8_t)(state->pos[0]))) {
+    while (!is_eos(state) && isxdigit((uint8_t)state->pos[0])) {
         state->pos++;
         someNumbers++;
     }
@@ -572,7 +558,7 @@ static int skipHexNum(lex_state_t * state) {
 
 static int skipOctNum(lex_state_t * state) {
     int someNumbers = 0;
-    while (!iseos(state) && isqdigit(state->pos[0])) {
+    while (!is_eos(state) && is_q_digit(state->pos[0])) {
         state->pos++;
         someNumbers++;
     }
@@ -581,7 +567,7 @@ static int skipOctNum(lex_state_t * state) {
 
 static int skipBinNum(lex_state_t * state) {
     int someNumbers = 0;
-    while (!iseos(state) && isbdigit(state->pos[0])) {
+    while (!is_eos(state) && is_b_digit(state->pos[0])) {
         state->pos++;
         someNumbers++;
     }
@@ -589,16 +575,16 @@ static int skipBinNum(lex_state_t * state) {
 }
 
 /**
- * Detect token nondecimal number
+ * Detect token non-decimal number
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiLex_NondecimalNumericData(lex_state_t * state, scpi_token_t * token) {
     int someNumbers = 0;
     token->ptr = state->pos;
     if (skipChr(state, '#')) {
-        if (!iseos(state)) {
+        if (!is_eos(state)) {
             if (isH(state->pos[0])) {
                 state->pos++;
                 someNumbers = skipHexNum(state);
@@ -627,17 +613,17 @@ int scpiLex_NondecimalNumericData(lex_state_t * state, scpi_token_t * token) {
 }
 
 /* 7.7.5 <STRING PROGRAM DATA> */
-static int isascii7bit(int c) {
-    return (c >= 0) && (c <= 0x7f);
+static int isascii7bit(const int c) {
+    return c >= 0 && c <= 0x7f;
 }
 
-static void skipQuoteProgramData(lex_state_t * state, char quote) {
-    while (!iseos(state)) {
+static void skipQuoteProgramData(lex_state_t * state, const char quote) {
+    while (!is_eos(state)) {
         if (isascii7bit(state->pos[0]) && !ischr(state, quote)) {
             state->pos++;
         } else if (ischr(state, quote)) {
             state->pos++;
-            if (!iseos(state) && ischr(state, quote)) {
+            if (!is_eos(state) && ischr(state, quote)) {
                 state->pos++;
             } else {
                 state->pos--;
@@ -661,17 +647,17 @@ static void skipSingleQuoteProgramData(lex_state_t * state) {
  * Detect token String data
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiLex_StringProgramData(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
 
-    if (!iseos(state)) {
+    if (!is_eos(state)) {
         if (ischr(state, '"')) {
             state->pos++;
             token->type = SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA;
             skipDoubleQuoteProgramData(state);
-            if (!iseos(state) && ischr(state, '"')) {
+            if (!is_eos(state) && ischr(state, '"')) {
                 state->pos++;
                 token->len = state->pos - token->ptr;
             } else {
@@ -681,7 +667,7 @@ int scpiLex_StringProgramData(lex_state_t * state, scpi_token_t * token) {
             state->pos++;
             token->type = SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA;
             skipSingleQuoteProgramData(state);
-            if (!iseos(state) && ischr(state, '\'')) {
+            if (!is_eos(state) && ischr(state, '\'')) {
                 state->pos++;
                 token->len = state->pos - token->ptr;
             } else {
@@ -692,7 +678,7 @@ int scpiLex_StringProgramData(lex_state_t * state, scpi_token_t * token) {
 
     token->len = state->pos - token->ptr;
 
-    if ((token->len > 0)) {
+    if (token->len > 0) {
         /* token->ptr++;
          * token->len -= 2; */
     } else {
@@ -705,33 +691,32 @@ int scpiLex_StringProgramData(lex_state_t * state, scpi_token_t * token) {
 }
 
 /* 7.7.6 <ARBITRARY BLOCK PROGRAM DATA> */
-static int isNonzeroDigit(int c) {
-    return isdigit(c) && (c != '0');
+static int isNonzeroDigit(const int c) {
+    return isdigit(c) && c != '0';
 }
 
 /**
  * Detect token Block Data
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiLex_ArbitraryBlockProgramData(lex_state_t * state, scpi_token_t * token) {
-    int i;
-    int arbitraryBlockLength = 0;
     const char * ptr = state->pos;
     int validData = -1;
     token->ptr = state->pos;
 
     if (skipChr(state, '#')) {
-        if (!iseos(state) && isNonzeroDigit(state->pos[0])) {
+        if (!is_eos(state) && isNonzeroDigit(state->pos[0])) {
+            int arbitraryBlockLength = 0;
             /* Get number of digits */
-            i = state->pos[0] - '0';
+            int i = state->pos[0] - '0';
             state->pos++;
 
             for (; i > 0; i--) {
-                if (!iseos(state) && isdigit((uint8_t)(state->pos[0]))) {
+                if (!is_eos(state) && isdigit((uint8_t)state->pos[0])) {
                     arbitraryBlockLength *= 10;
-                    arbitraryBlockLength += (state->pos[0] - '0');
+                    arbitraryBlockLength += state->pos[0] - '0';
                     state->pos++;
                 } else {
                     break;
@@ -740,17 +725,17 @@ int scpiLex_ArbitraryBlockProgramData(lex_state_t * state, scpi_token_t * token)
 
             if (i == 0) {
                 state->pos += arbitraryBlockLength;
-                if ((state->buffer + state->len) >= (state->pos)) {
+                if (state->buffer + state->len >= state->pos) {
                     token->ptr = state->pos - arbitraryBlockLength;
                     token->len = arbitraryBlockLength;
                     validData = 1;
                 } else {
                     validData = 0;
                 }
-            } else if (iseos(state)) {
+            } else if (is_eos(state)) {
                 validData = 0;
             }
-        } else if (iseos(state)) {
+        } else if (is_eos(state)) {
             validData = 0;
         }
     }
@@ -774,14 +759,14 @@ int scpiLex_ArbitraryBlockProgramData(lex_state_t * state, scpi_token_t * token)
 }
 
 /* 7.7.7 <EXPRESSION PROGRAM DATA> */
-static int isProgramExpression(int c) {
-    if ((c >= 0x20) && (c <= 0x7e)) {
-        if ((c != '"')
-                && (c != '#')
-                && (c != '\'')
-                && (c != '(')
-                && (c != ')')
-                && (c != ';')) {
+static int isProgramExpression(const int c) {
+    if (c >= 0x20 && c <= 0x7e) {
+        if (c != '"'
+                && c != '#'
+                && c != '\''
+                && c != '('
+                && c != ')'
+                && c != ';') {
             return 1;
         }
     }
@@ -790,7 +775,7 @@ static int isProgramExpression(int c) {
 }
 
 static void skipProgramExpression(lex_state_t * state) {
-    while (!iseos(state) && isProgramExpression(state->pos[0])) {
+    while (!is_eos(state) && isProgramExpression(state->pos[0])) {
         state->pos++;
     }
 }
@@ -801,16 +786,16 @@ static void skipProgramExpression(lex_state_t * state) {
  * Detect token Expression
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiLex_ProgramExpression(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
 
-    if (!iseos(state) && ischr(state, '(')) {
+    if (!is_eos(state) && ischr(state, '(')) {
         state->pos++;
         skipProgramExpression(state);
 
-        if (!iseos(state) && ischr(state, ')')) {
+        if (!is_eos(state) && ischr(state, ')')) {
             state->pos++;
             token->len = state->pos - token->ptr;
         } else {
@@ -818,7 +803,7 @@ int scpiLex_ProgramExpression(lex_state_t * state, scpi_token_t * token) {
         }
     }
 
-    if ((token->len > 0)) {
+    if (token->len > 0) {
         token->type = SCPI_TOKEN_PROGRAM_EXPRESSION;
     } else {
         token->type = SCPI_TOKEN_UNKNOWN;
@@ -833,7 +818,7 @@ int scpiLex_ProgramExpression(lex_state_t * state, scpi_token_t * token) {
  * Detect token comma
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiLex_Comma(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
@@ -853,7 +838,7 @@ int scpiLex_Comma(lex_state_t * state, scpi_token_t * token) {
  * Detect token semicolon
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiLex_Semicolon(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
@@ -873,7 +858,7 @@ int scpiLex_Semicolon(lex_state_t * state, scpi_token_t * token) {
  * Detect token colon
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiLex_Colon(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
@@ -893,9 +878,10 @@ int scpiLex_Colon(lex_state_t * state, scpi_token_t * token) {
  * Detect specified character
  * @param state
  * @param token
- * @return 
+ * @param chr
+ * @return
  */
-int scpiLex_SpecificCharacter(lex_state_t * state, scpi_token_t * token, char chr) {
+int scpiLex_SpecificCharacter(lex_state_t * state, scpi_token_t * token, const char chr) {
     token->ptr = state->pos;
 
     if (skipChr(state, chr)) {
@@ -913,7 +899,7 @@ int scpiLex_SpecificCharacter(lex_state_t * state, scpi_token_t * token, char ch
  * Detect token New line
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiLex_NewLine(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
@@ -923,7 +909,7 @@ int scpiLex_NewLine(lex_state_t * state, scpi_token_t * token) {
 
     token->len = state->pos - token->ptr;
 
-    if ((token->len > 0)) {
+    if (token->len > 0) {
         token->type = SCPI_TOKEN_NL;
     } else {
         token->type = SCPI_TOKEN_UNKNOWN;

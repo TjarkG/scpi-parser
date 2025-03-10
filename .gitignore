@@ -36,3 +36,7 @@ examples/*/test
 *.gcno
 *.gcda
 *.gcov
+
+# IDE Files
+.idea
+.vscode

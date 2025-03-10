@@ -61,9 +61,9 @@ typedef struct {
     fd_set fds;
 } user_data_t;
 
-size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
+size_t SCPI_Write(const scpi_t * context, const char * data, const size_t len) {
     if (context->user_context != NULL) {
-        user_data_t * u = (user_data_t *) (context->user_context);
+        const user_data_t * u = (user_data_t *) (context->user_context);
         if (u->fio) {
             return fwrite(data, 1, len, u->fio);
         }
@@ -71,9 +71,9 @@ size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     return 0;
 }
 
-scpi_result_t SCPI_Flush(scpi_t * context) {
+scpi_result_t SCPI_Flush(const scpi_t * context) {
     if (context->user_context != NULL) {
-        user_data_t * u = (user_data_t *) (context->user_context);
+        const user_data_t * u = (user_data_t *) (context->user_context);
         if (u->fio) {
             return fflush(u->fio) == 0 ? SCPI_RES_OK : SCPI_RES_ERR;
         }
@@ -81,14 +81,14 @@ scpi_result_t SCPI_Flush(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-int SCPI_Error(scpi_t * context, int_fast16_t err) {
+int SCPI_Error(const scpi_t * context, const int_fast16_t err) {
     (void) context;
     /* BEEP */
     fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int16_t) err, SCPI_ErrorTranslate(err));
     return 0;
 }
 
-scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
+scpi_result_t SCPI_Control(const scpi_t * context, const scpi_ctrl_name_t ctrl, const scpi_reg_val_t val) {
     char b[16];
 
     if (SCPI_CTRL_SRQ == ctrl) {
@@ -98,7 +98,7 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
     }
 
     if (context->user_context != NULL) {
-        user_data_t * u = (user_data_t *) (context->user_context);
+        const user_data_t * u = (user_data_t *) (context->user_context);
         if (u->control_io >= 0) {
             sprintf(b, "SRQ%d\r\n", val);
             return write(u->control_io, b, strlen(b)) > 0 ? SCPI_RES_OK : SCPI_RES_ERR;
@@ -107,19 +107,19 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
     return SCPI_RES_OK;
 }
 
-scpi_result_t SCPI_Reset(scpi_t * context) {
+scpi_result_t SCPI_Reset(const scpi_t * context) {
     (void) context;
 
     fprintf(stderr, "**Reset\r\n");
     return SCPI_RES_OK;
 }
 
-scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context) {
+scpi_result_t SCPI_SystemCommTcpipControlQ(const scpi_t * context) {
     SCPI_ResultInt32(context, CONTROL_PORT);
     return SCPI_RES_OK;
 }
 
-static int createServer(int port) {
+static int createServer(const int port) {
     int fd;
     int rc;
     int on = 1;
@@ -271,7 +271,7 @@ static void processSrqIo(user_data_t * user_data) {
 /*
  *
  */
-int main(int argc, char** argv) {
+int main(const int argc, char** argv) {
     (void) argc;
     (void) argv;
     int rc;

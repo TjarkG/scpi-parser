@@ -27,7 +27,7 @@
  */
 
 /**
- * @file   scpi_minimal.h
+ * @file   minimal.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
  * @brief  SCPI minimal implementation

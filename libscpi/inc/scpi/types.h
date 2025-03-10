@@ -27,7 +27,7 @@
  */
 
 /**
- * @file   scpi_types.h
+ * @file   types.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
  *
  * @brief  SCPI data types
@@ -235,7 +235,7 @@ extern "C" {
     struct _scpi_token_t {
         scpi_token_type_t type;
         char * ptr;
-        int len;
+        size_t len;
     };
     typedef struct _scpi_token_t scpi_token_t;
 

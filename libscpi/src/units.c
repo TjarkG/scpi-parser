@@ -293,7 +293,7 @@ const scpi_choice_def_t scpi_special_numbers_def[] = {
  * @param len length of text representation
  * @return pointer of related unit definition or NULL
  */
-static const scpi_unit_def_t * translateUnit(const scpi_unit_def_t * units, const char * unit, size_t len) {
+static const scpi_unit_def_t * translateUnit(const scpi_unit_def_t * units, const char * unit, const size_t len) {
     int i;
 
     if (units == NULL) {
@@ -339,7 +339,7 @@ static const char * translateUnitInverse(const scpi_unit_def_t * units, const sc
  * @param value preparsed numeric value
  * @return TRUE if value parameter was converted to base units
  */
-static scpi_bool_t transformNumber(scpi_t * context, const char * unit, size_t len, scpi_number_t * value) {
+static scpi_bool_t transformNumber(scpi_t * context, const char * unit, const size_t len, scpi_number_t * value) {
     size_t s;
     const scpi_unit_def_t * unitDef;
     s = skipWhitespace(unit, len);
@@ -369,7 +369,7 @@ static scpi_bool_t transformNumber(scpi_t * context, const char * unit, size_t l
  * @param mandatory if the parameter is mandatory
  * @return
  */
-scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special, scpi_number_t * value, scpi_bool_t mandatory) {
+scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special, scpi_number_t * value, const scpi_bool_t mandatory) {
     scpi_token_t token;
     lex_state_t state;
     scpi_parameter_t param;
@@ -473,7 +473,7 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
  * @param len max length of string including null-character termination
  * @return number of chars written to string
  */
-size_t SCPI_NumberToStr(scpi_t * context, const scpi_choice_def_t * special, scpi_number_t * value, char * str, size_t len) {
+size_t SCPI_NumberToStr(const scpi_t * context, const scpi_choice_def_t * special, scpi_number_t * value, char * str, const size_t len) {
     const char * type;
     const char * unit;
     size_t result;

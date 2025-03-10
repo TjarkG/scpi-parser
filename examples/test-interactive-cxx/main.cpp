@@ -38,25 +38,25 @@
 #include "scpi/scpi.h"
 #include "../common-cxx/scpi-def.h"
 
-size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
+size_t SCPI_Write(const scpi_t * context, const char * data, const size_t len) {
     (void) context;
     std::cout.write(data, len);
     return len;
 }
 
-scpi_result_t SCPI_Flush(scpi_t * context) {
+scpi_result_t SCPI_Flush(const scpi_t * context) {
     (void) context;
     std::cout << std::flush;
     return SCPI_RES_OK;
 }
 
-int SCPI_Error(scpi_t * context, int_fast16_t err) {
+int SCPI_Error(const scpi_t * context, const int_fast16_t err) {
     (void) context;
     std::cerr << "**ERROR: " << err << ", \"" << SCPI_ErrorTranslate(err) << "\"" << std::endl;
     return 0;
 }
 
-scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
+scpi_result_t SCPI_Control(const scpi_t * context, const scpi_ctrl_name_t ctrl, const scpi_reg_val_t val) {
     (void) context;
 
     if (SCPI_CTRL_SRQ == ctrl) {
@@ -67,14 +67,14 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
     return SCPI_RES_OK;
 }
 
-scpi_result_t SCPI_Reset(scpi_t * context) {
+scpi_result_t SCPI_Reset(const scpi_t * context) {
     (void) context;
 
     std::cerr << "**Reset" << std::endl;
     return SCPI_RES_OK;
 }
 
-scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context) {
+scpi_result_t SCPI_SystemCommTcpipControlQ(const scpi_t * context) {
     (void) context;
 
     return SCPI_RES_ERR;
@@ -83,7 +83,7 @@ scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context) {
 /*
  *
  */
-int main(int argc, char** argv) {
+int main(const int argc, char** argv) {
     (void) argc;
     (void) argv;
 

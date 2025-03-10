@@ -27,7 +27,7 @@
  */
 
 /**
- * @file   scpi_utils.h
+ * @file   utils_private.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
  *
  * @brief  Conversion routines and string manipulation routines

@@ -155,7 +155,7 @@ static scpi_result_t TEST_ChoiceQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-static scpi_result_t TEST_Numbers(scpi_t * context) {
+static scpi_result_t TEST_Numbers(const scpi_t * context) {
     int32_t numbers[2];
 
     SCPI_CommandNumbers(context, numbers, 2, 1);

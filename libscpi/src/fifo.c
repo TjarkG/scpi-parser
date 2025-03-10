@@ -31,8 +31,10 @@
 /**
  * Initialize fifo
  * @param fifo
+ * @param data - memory for fifo
+ * @param size - size of data
  */
-void fifo_init(scpi_fifo_t * fifo, scpi_error_t * data, int16_t size) {
+void fifo_init(scpi_fifo_t * fifo, scpi_error_t * data, const int16_t size) {
     fifo->wr = 0;
     fifo->rd = 0;
     fifo->count = 0;
@@ -55,7 +57,7 @@ void fifo_clear(scpi_fifo_t * fifo) {
  * @param fifo
  * @return
  */
-scpi_bool_t fifo_is_empty(scpi_fifo_t * fifo) {
+scpi_bool_t fifo_is_empty(const scpi_fifo_t * fifo) {
     return fifo->count == 0;
 }
 
@@ -64,15 +66,14 @@ scpi_bool_t fifo_is_empty(scpi_fifo_t * fifo) {
  * @param fifo
  * @return
  */
-scpi_bool_t fifo_is_full(scpi_fifo_t * fifo) {
+scpi_bool_t fifo_is_full(const scpi_fifo_t * fifo) {
     return fifo->count == fifo->size;
 }
 
 /**
  * Add element to fifo. If fifo is full, return FALSE.
- * @param fifo
- * @param err
- * @param info
+ * @param fifo - fifo to add to
+ * @param value - value to add
  * @return
  */
 scpi_bool_t fifo_add(scpi_fifo_t * fifo, const scpi_error_t * value) {
@@ -135,12 +136,12 @@ scpi_bool_t fifo_remove_last(scpi_fifo_t * fifo, scpi_error_t * value) {
 }
 
 /**
- * Retrive number of elements in fifo
+ * Retrieve number of elements in fifo
  * @param fifo
  * @param value
  * @return
  */
-scpi_bool_t fifo_count(scpi_fifo_t * fifo, int16_t * value) {
+scpi_bool_t fifo_count(const scpi_fifo_t * fifo, int16_t * value) {
     *value = fifo->count;
     return TRUE;
 }

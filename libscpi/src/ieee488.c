@@ -27,7 +27,7 @@
  */
 
 /**
- * @file   scpi_ieee488.c
+ * @file   ieee488.c
  * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
  * @brief  Implementation of IEEE488.2 commands and state model
@@ -38,7 +38,6 @@
 #include "scpi/parser.h"
 #include "scpi/ieee488.h"
 #include "scpi/error.h"
-#include "scpi/constants.h"
 
 #include <stdio.h>
 
@@ -114,10 +113,11 @@ static const scpi_reg_group_info_t scpi_reg_group_details[SCPI_REG_GROUP_COUNT] 
 
 /**
  * Get register value
+ * @param context
  * @param name - register name
  * @return register value
  */
-scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name) {
+scpi_reg_val_t SCPI_RegGet(const scpi_t * context, const scpi_reg_name_t name) {
     if ((name < SCPI_REG_COUNT) && context) {
         return context->registers[name];
     } else {
@@ -128,10 +128,10 @@ scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name) {
 /**
  * Wrapper function to control interface from context
  * @param context
- * @param ctrl number of controll message
- * @param value value of related register
+ * @param ctrl number of control message
+ * @param val value of related register
  */
-static size_t writeControl(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
+static size_t writeControl(scpi_t * context, const scpi_ctrl_name_t ctrl, const scpi_reg_val_t val) {
     if (context && context->interface && context->interface->control) {
         return context->interface->control(context, ctrl, val);
     } else {
@@ -141,6 +141,7 @@ static size_t writeControl(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
 
 /**
  * Set register value
+ * @param context
  * @param name - register name
  * @param val - new value
  */
@@ -152,13 +153,13 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
     scpi_reg_group_info_t register_group;
 
     do {
-        scpi_reg_class_t register_type = scpi_reg_details[name].type;
+        const scpi_reg_class_t register_type = scpi_reg_details[name].type;
         register_group = scpi_reg_group_details[scpi_reg_details[name].group];
 
         scpi_reg_val_t ptrans;
 
         /* store old register value */
-        scpi_reg_val_t old_val = context->registers[name];
+        const scpi_reg_val_t old_val = context->registers[name];
 
         if (old_val == val) {
             return;
@@ -170,8 +171,8 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
             case SCPI_REG_CLASS_STB:
             case SCPI_REG_CLASS_SRE:
             {
-                scpi_reg_val_t stb = context->registers[SCPI_REG_STB] & ~STB_SRQ;
-                scpi_reg_val_t sre = context->registers[SCPI_REG_SRE] & ~STB_SRQ;
+                const scpi_reg_val_t stb = context->registers[SCPI_REG_STB] & ~STB_SRQ;
+                const scpi_reg_val_t sre = context->registers[SCPI_REG_SRE] & ~STB_SRQ;
 
                 if (stb & sre) {
                     ptrans = ((old_val ^ val) & val);
@@ -193,7 +194,7 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
                     enable = 0xFFFF;
                 }
 
-                scpi_bool_t summary = val & enable;
+                const scpi_bool_t summary = val & enable;
 
                 name = register_group.parent_reg;
                 val = SCPI_RegGet(context, register_group.parent_reg);
@@ -212,8 +213,6 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
                     val = ((old_val ^ val) & val) | SCPI_RegGet(context, register_group.event);
                 } else {
                     scpi_reg_val_t ptfilt = 0, ntfilt = 0;
-                    scpi_reg_val_t transitions;
-                    scpi_reg_val_t ntrans;
 
                     if(register_group.ptfilt != SCPI_REG_NONE) {
                         ptfilt = SCPI_RegGet(context, register_group.ptfilt);
@@ -223,9 +222,9 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
                         ntfilt = SCPI_RegGet(context, register_group.ntfilt);
                     }
 
-                    transitions = old_val ^ val;
+                    const scpi_reg_val_t transitions = old_val ^ val;
                     ptrans = transitions & val;
-                    ntrans = transitions & ~ptrans;
+                    const scpi_reg_val_t ntrans = transitions & ~ptrans;
 
                     val = ((ptrans & ptfilt) | (ntrans & ntfilt)) | SCPI_RegGet(context, register_group.event);
                 }
@@ -241,19 +240,21 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
 
 /**
  * Set register bits
+ * @param context
  * @param name - register name
  * @param bits bit mask
  */
-void SCPI_RegSetBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits) {
+void SCPI_RegSetBits(scpi_t * context, const scpi_reg_name_t name, const scpi_reg_val_t bits) {
     SCPI_RegSet(context, name, SCPI_RegGet(context, name) | bits);
 }
 
 /**
  * Clear register bits
+ * @param context
  * @param name - register name
  * @param bits bit mask
  */
-void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits) {
+void SCPI_RegClearBits(scpi_t * context, const scpi_reg_name_t name, const scpi_reg_val_t bits) {
     SCPI_RegSet(context, name, SCPI_RegGet(context, name) & ~bits);
 }
 
@@ -265,9 +266,8 @@ void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bi
  */
 scpi_result_t SCPI_CoreCls(scpi_t * context) {
     SCPI_ErrorClear(context);
-    int i;
-    for (i = 0; i < SCPI_REG_GROUP_COUNT; ++i) {
-        scpi_reg_name_t event_reg = scpi_reg_group_details[i].event;
+    for (int i = 0; i < SCPI_REG_GROUP_COUNT; ++i) {
+        const scpi_reg_name_t event_reg = scpi_reg_group_details[i].event;
         if (event_reg != SCPI_REG_STB) {
             SCPI_RegSet(context, event_reg, 0);
         }
@@ -322,8 +322,7 @@ scpi_result_t SCPI_CoreEsrQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreIdnQ(scpi_t * context) {
-    int i;
-    for (i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
         if (context->idn[i]) {
             SCPI_ResultMnemonic(context, context->idn[i]);
         } else {
@@ -413,11 +412,10 @@ scpi_result_t SCPI_CoreTstQ(scpi_t * context) {
 
 /**
  * *WAI
- * @param context
+ * @param
  * @return 
  */
-scpi_result_t SCPI_CoreWai(scpi_t * context) {
-    (void) context;
+scpi_result_t SCPI_CoreWai(scpi_t *) {
     /* NOP */
     return SCPI_RES_OK;
 }

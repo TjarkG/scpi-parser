@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * @file   scpi_error.c
+ * @file   error.c
  * @date   Thu Nov 15 10:58:45 UTC 2012
  *
  * @brief  Error handling and storing routines
@@ -51,8 +51,10 @@
 /**
  * Initialize error queue
  * @param context - scpi context
+ * @param data - memory for error queue
+ * @param size - size of data
  */
-void SCPI_ErrorInit(scpi_t * context, scpi_error_t * data, int16_t size) {
+void SCPI_ErrorInit(scpi_t * context, scpi_error_t * data, const int16_t size) {
     fifo_init(&context->error_queue, data, size);
 }
 
@@ -75,7 +77,7 @@ static void SCPI_ErrorEmitEmpty(scpi_t * context) {
  * @param context scpi context
  * @param err Error to emit
  */
-static void SCPI_ErrorEmit(scpi_t * context, int16_t err) {
+static void SCPI_ErrorEmit(scpi_t * context, const int16_t err) {
     SCPI_RegSetBits(context, SCPI_REG_STB, STB_QMA);
 
     if (context->interface && context->interface->error) {
@@ -120,7 +122,7 @@ scpi_bool_t SCPI_ErrorPop(scpi_t * context, scpi_error_t * error) {
  * @param context
  * @return
  */
-int32_t SCPI_ErrorCount(scpi_t * context) {
+int32_t SCPI_ErrorCount(const scpi_t * context) {
     int16_t result = 0;
 
     fifo_count(&context->error_queue, &result);
@@ -128,10 +130,10 @@ int32_t SCPI_ErrorCount(scpi_t * context) {
     return result;
 }
 
-static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err, char * info, size_t info_len) {
+static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, const int16_t err, const char * info, const size_t info_len) {
     scpi_error_t error_value;
-    /* SCPIDEFINE_strndup is sometimes a dumy that does not reference it's arguments. 
-       Since info_len is not referenced elsewhere caoing to void prevents unusd argument warnings */
+    /* SCPIDEFINE_strndup is sometimes a dummy that does not reference its arguments.
+       Since info_len is not referenced elsewhere casting to void prevents unused argument warnings */
     (void) info_len;
     char * info_ptr = NULL;
     if (info) {
@@ -176,15 +178,14 @@ static const struct error_reg errs[ERROR_DEFS_N] = {
  * @param info - additional text information or NULL for no text
  * @param info_len - length of text or 0 for automatic length
  */
-void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info, size_t info_len) {
-    int i;
+void SCPI_ErrorPushEx(scpi_t * context, const int16_t err, const char * info, size_t info_len) {
     /* automatic calculation of length */
     if (info && info_len == 0) {
         info_len = SCPIDEFINE_strnlen(info, SCPI_STD_ERROR_DESC_MAX_STRING_LENGTH);
     }
-    scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, info, info_len);
+    const scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, info, info_len);
 
-    for (i = 0; i < ERROR_DEFS_N; i++) {
+    for (int i = 0; i < ERROR_DEFS_N; i++) {
         if ((err <= errs[i].from) && (err >= errs[i].to)) {
             SCPI_RegSetBits(context, SCPI_REG_ESR, errs[i].esrBit);
         }
@@ -205,9 +206,8 @@ void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info, size_t info_le
  * @param context - scpi context
  * @param err - error number
  */
-void SCPI_ErrorPush(scpi_t * context, int16_t err) {
+void SCPI_ErrorPush(scpi_t * context, const int16_t err) {
     SCPI_ErrorPushEx(context, err, NULL, 0);
-    return;
 }
 
 /**
@@ -215,7 +215,7 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
  * @param err - error number
  * @return Error string representation
  */
-const char * SCPI_ErrorTranslate(int16_t err) {
+const char * SCPI_ErrorTranslate(const int16_t err) {
     switch (err) {
 #define X(def, val, str) case def: return str;
 #if USE_FULL_ERROR_LIST

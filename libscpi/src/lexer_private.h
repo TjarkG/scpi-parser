@@ -27,7 +27,7 @@
  */
 
 /**
- * @file   lexer.h
+ * @file   lexer_private.h
  * @date   Thu Mar 21 15:00:58 UTC 2013
  * 
  * @brief  SCPI Lexer
@@ -45,7 +45,7 @@
 extern "C" {
 #endif
 
-    int scpiLex_IsEos(lex_state_t * state) LOCAL;
+    int scpiLex_IsEos(const lex_state_t * state) LOCAL;
     int scpiLex_WhiteSpace(lex_state_t * state, scpi_token_t * token) LOCAL;
     int scpiLex_ProgramHeader(lex_state_t * state, scpi_token_t * token) LOCAL;
     int scpiLex_CharacterProgramData(lex_state_t * state, scpi_token_t * token) LOCAL;

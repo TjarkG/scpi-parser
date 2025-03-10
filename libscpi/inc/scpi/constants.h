@@ -27,7 +27,7 @@
  */
 
 /**
- * @file   scpi_constants.h
+ * @file   constants.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
  * @brief  SCPI Device constants

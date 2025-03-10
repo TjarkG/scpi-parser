@@ -27,7 +27,7 @@
  */
 
 /**
- * @file   scpi_minimal.c
+ * @file   minimal.c
  * @date   Thu Nov 15 10:58:45 UTC 2012
  *
  * @brief  SCPI minimal implementation
@@ -45,11 +45,10 @@
 
 /**
  * Command stub function
- * @param context
+ * @param
  * @return
  */
-scpi_result_t SCPI_Stub(scpi_t * context) {
-    (void) context;
+scpi_result_t SCPI_Stub(scpi_t *) {
     return SCPI_RES_OK;
 }
 

@@ -27,7 +27,7 @@
  */
 
 /**
- * @file   scpi_ieee488.h
+ * @file   ieee488.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
  * @brief  Implementation of IEEE488.2 commands and state model
@@ -79,7 +79,7 @@ extern "C" {
 #define ESR_PON 0x80    /* Power On */
 
 
-    scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name);
+    scpi_reg_val_t SCPI_RegGet(const scpi_t * context, scpi_reg_name_t name);
     void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val);
     void SCPI_RegSetBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits);
     void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits);
