@@ -27,7 +27,7 @@
  */
 
 /**
- * @file   main.c
+ * @file   main.cpp
  * @date   Thu Nov 15 10:58:45 UTC 2012
  *
  * @brief  SCPI parser test
@@ -40,7 +40,7 @@
 
 size_t SCPI_Write(const scpi_t * context, const char * data, const size_t len) {
     (void) context;
-    std::cout.write(data, len);
+    std::cout.write(data, static_cast<std::streamsize>(len));
     return len;
 }
 
@@ -52,7 +52,7 @@ scpi_result_t SCPI_Flush(const scpi_t * context) {
 
 int SCPI_Error(const scpi_t * context, const int_fast16_t err) {
     (void) context;
-    std::cerr << "**ERROR: " << err << ", \"" << SCPI_ErrorTranslate(err) << "\"" << std::endl;
+    std::cerr << "**ERROR: " << err << ", \"" << SCPI_ErrorTranslate(static_cast<int16_t>(err)) << "\"\n";
     return 0;
 }
 
@@ -60,9 +60,10 @@ scpi_result_t SCPI_Control(const scpi_t * context, const scpi_ctrl_name_t ctrl, 
     (void) context;
 
     if (SCPI_CTRL_SRQ == ctrl) {
-        std::cerr << "**SRQ: 0x" << std::hex << val << "(" << std::dec << val << ")" << std::endl;
-    } else {
-        std::cerr << "**CTRL: " << std::hex << ctrl << ": 0x" << std::hex << val << "(" << std::dec << val << ")" << std::endl;
+        std::cerr << "**SRQ: 0x" << std::hex << val << "(" << std::dec << val << ")\n";
+    }
+    else {
+        std::cerr << "**CTRL: " << std::hex << ctrl << ": 0x" << std::hex << val << "(" << std::dec << val << ")\n";
     }
     return SCPI_RES_OK;
 }
@@ -70,7 +71,7 @@ scpi_result_t SCPI_Control(const scpi_t * context, const scpi_ctrl_name_t ctrl, 
 scpi_result_t SCPI_Reset(const scpi_t * context) {
     (void) context;
 
-    std::cerr << "**Reset" << std::endl;
+    std::cerr << "**Reset\n";
     return SCPI_RES_OK;
 }
 
@@ -83,26 +84,22 @@ scpi_result_t SCPI_SystemCommTcpipControlQ(const scpi_t * context) {
 /*
  *
  */
-int main(const int argc, char** argv) {
+[[noreturn]] int main(const int argc, char ** argv) {
     (void) argc;
     (void) argv;
 
     SCPI_Init(&scpi_context,
-            scpi_commands,
-            &scpi_interface,
-            scpi_units_def,
-            SCPI_IDN1, SCPI_IDN2, SCPI_IDN3, SCPI_IDN4,
-            scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
-            scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
+              scpi_commands,
+              &scpi_interface,
+              scpi_units_def,
+              SCPI_IDN1, SCPI_IDN2, SCPI_IDN3, SCPI_IDN4,
+              scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
+              scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
 
-    std::cerr << "SCPI Interactive demo" << std::endl;
-    
-    while (1) {
-        char ch = std::cin.get();
+    std::cerr << "SCPI Interactive demo\n";
+
+    while (true) {
+        char ch = static_cast<char>(std::cin.get());
         SCPI_Input(&scpi_context, &ch, 1);
     }
-
-
-    return (EXIT_SUCCESS);
 }
-

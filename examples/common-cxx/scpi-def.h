@@ -36,7 +36,7 @@
 #define SCPI_ERROR_QUEUE_SIZE 17
 #define SCPI_IDN1 "MANUFACTURE"
 #define SCPI_IDN2 "INSTR2013"
-#define SCPI_IDN3 NULL
+#define SCPI_IDN3 nullptr
 #define SCPI_IDN4 "01-02"
 
 extern const scpi_command_t scpi_commands[];
@@ -55,4 +55,3 @@ scpi_result_t SCPI_Flush(const scpi_t * context);
 scpi_result_t SCPI_SystemCommTcpipControlQ(const scpi_t * context);
 
 #endif /* __SCPI_DEF_H_ */
-

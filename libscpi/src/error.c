@@ -130,7 +130,8 @@ int32_t SCPI_ErrorCount(const scpi_t * context) {
     return result;
 }
 
-static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, const int16_t err, const char * info, const size_t info_len) {
+static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, const int16_t err, const char * info,
+                                         const size_t info_len) {
     scpi_error_t error_value;
     /* SCPIDEFINE_strndup is sometimes a dummy that does not reference its arguments.
        Since info_len is not referenced elsewhere casting to void prevents unused argument warnings */
@@ -163,7 +164,7 @@ static const struct error_reg errs[ERROR_DEFS_N] = {
     {-100, -199, ESR_CER}, /* Command error (e.g. syntax error) ch 21.8.9    */
     {-200, -299, ESR_EER}, /* Execution Error (e.g. range error) ch 21.8.10  */
     {-300, -399, ESR_DER}, /* Device specific error -300, -399 ch 21.8.11    */
-    { 1, 32767, ESR_DER}, /* Device designer provided specific error 1, 32767 ch 21.8.11    */
+    {1, 32767, ESR_DER}, /* Device designer provided specific error 1, 32767 ch 21.8.11    */
     {-400, -499, ESR_QER}, /* Query error -400, -499 ch 21.8.12              */
     {-500, -599, ESR_PON}, /* Power on event -500, -599 ch 21.8.13           */
     {-600, -699, ESR_URQ}, /* User Request Event -600, -699 ch 21.8.14       */
@@ -223,15 +224,13 @@ const char * SCPI_ErrorTranslate(const int16_t err) {
 #else
 #define XE(def, val, str)
 #endif
-        LIST_OF_ERRORS
+    LIST_OF_ERRORS
 
 #if USE_USER_ERROR_LIST
         LIST_OF_USER_ERRORS
 #endif
 #undef X
 #undef XE
-        default: return "Unknown error";
+    default: return "Unknown error";
     }
 }
-
-
